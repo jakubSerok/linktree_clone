@@ -3,6 +3,7 @@ import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
 import { signIn } from "@/auth"
+import { AuthError } from "next-auth";
 
 const registerSchema = z.object({
     email: z.string().email("Invalid email format"),
@@ -62,54 +63,39 @@ export async function loginUser(
     prevState: { error?: string; success?: string } | null,
     formData: FormData
 ) {
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+
+    const validatedFields = loginSchema.safeParse({
+        email,
+        password
+    })
+
+    if (!validatedFields.success) {
+        return { error: "Invalid data provided!" }
+    }
+
     try {
-        const email = formData.get("email") as string
-        const password = formData.get("password") as string
-
-        const validatedFields = loginSchema.safeParse({
-            email,
-            password
-        })
-
-        if (!validatedFields.success) {
-            return { 
-                error:  "Invalid data provided!" 
-            }
-        }
-
-        const existingUser = await db.user.findUnique({ 
-            where: { email } 
-        })
-
-        if (!existingUser || !existingUser.password) {
-            return { 
-                error: "Invalid email or password" 
-            }
-        }
-
-        const passwordsMatch = await bcrypt.compare(password, existingUser.password)
-        
-        if (!passwordsMatch) {
-            return { 
-                error: "Invalid email or password" 
-            }
-        }
-
+       
         await signIn("credentials", {
             email,
             password,
-            redirectTo: "/dashboard"
+            redirectTo: "/dashboard",
         })
-
-        return { 
-            success: "Login successful!" 
-        }
     } catch (error) {
-        console.error("Login error:", error)
+       
         
-    
-        return { 
-            error: "An error occurred during login. Please try again." 
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case 'CredentialsSignin':
+                    return { error: 'Invalid credentials.' };
+                default:
+                    return { error: 'Something went wrong.' };
+            }
         }
+        throw error; 
     }
+    
+
+    return { success: "Login successful!" }
 }
