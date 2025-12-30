@@ -5,9 +5,15 @@ import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { authConfig } from "./auth.config"
 
-async function getUser(email:string) {
+export async function getUser(email:string) {
     try{
-        const user = await db.user.findUnique({where:{email}})
+        const user = await db.user.findUnique({where:{email},include: {
+      links: {
+        orderBy: {
+          createdAt: 'desc'
+        }
+      }
+    }})
         return user;
     }
     catch (error) {
