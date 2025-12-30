@@ -43,6 +43,7 @@ export async function registerUser(
         await db.user.create({
             data: {
                 email,
+                bio:"",
                 username,
                 password: hashedPassword,
             }
@@ -98,4 +99,19 @@ export async function loginUser(
     
 
     return { success: "Login successful!" }
+}
+export async function updateUser(username: string, bio: string, email: string) {
+  try {
+    const updatedUser = await db.user.update({
+      where: { email },
+      data: {
+        username,
+        bio
+      }
+    });
+    return { success: "Profile updated successfully!" };
+  } catch (error) {
+    console.error('Update error:', error);
+    return { error: "Failed to update profile. Please try again." };
+  }
 }
