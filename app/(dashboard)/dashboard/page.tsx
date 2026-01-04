@@ -1,8 +1,6 @@
 import { auth, getUser } from "@/auth";
 import { redirect } from "next/navigation";
-import Editor from "./components/Editor";
-import Preview from "./components/Preview";
-
+import DashboardManager from "./components/DashboardManager";
 export default async function DashboardPage() {
   const session = await auth();
   
@@ -16,14 +14,10 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
-      <main className="container mx-auto px-4 py-8">
-        <div className=" flex">
-          <Editor user={user} />
-          
-          <Preview/>
-        </div>
-      </main>
+    <div>
+      
+            <DashboardManager initialUser={user}/>
+       
       
       
     </div>

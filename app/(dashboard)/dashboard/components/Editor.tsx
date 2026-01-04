@@ -5,21 +5,28 @@ import { useState } from "react";
 import { updateUser } from "@/actions/user";
 import { addLink, deleteLink, updateLink } from "@/actions/links";
 
-interface EditorProps {
+export interface EditorProps {
   user: User & {
-    links: Array<{
-      id: string;
-      title: string;
-      url: string;
-      userId: string;
-    }>;
+    links: Array<{ id: string; title: string; url: string; userId: string }>;
   };
+  onLinkAdded: (link: any) => void;
+  onLinkDeleted: (id: string) => void;
+  onLinkUpdated: (link: any) => void;
+  onProfileUpdated: (username: string, bio: string) => void;
 }
 
-export default function Editor({ user }: EditorProps) {
+export default function Editor({ 
+    user, 
+    onLinkAdded, 
+    onLinkDeleted, 
+    onLinkUpdated, 
+    onProfileUpdated 
+}: EditorProps) {
+  
+  
+
   const [username, setUsername] = useState(user.username || '');
   const [bio, setBio] = useState(user.bio || '');
-  const [links, setLinks] = useState(user.links);
   const [linkTitle, setLinkTitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [editingLink, setEditingLink] = useState<{ id: string; title: string; url: string } | null>(null);
@@ -27,33 +34,28 @@ export default function Editor({ user }: EditorProps) {
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await updateUser(username, bio, user.email);
-    if (result?.error) {
-      console.error(result.error);
-    } else {
-      alert('Profile updated successfully!');
+    if (!result?.error) {
+      onProfileUpdated(username, bio); 
+      alert('Profile updated!');
     }
   };
 
   const handleLinkSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await addLink(linkTitle, linkUrl, user.id);
-    if (result?.error) {
-      console.error(result.error);
-    } else if (result?.data) {
+    
+    if (result?.data) {
       setLinkTitle('');
       setLinkUrl('');
-      setLinks([...links, result.data]);
-      alert('Link added successfully!');
+      onLinkAdded(result.data); 
     }
   };
 
   const handleDeleteLink = async (linkId: string) => {
-    if (!confirm('Are you sure you want to delete this link?')) return;
-    
+    if (!confirm('Delete?')) return;
     const result = await deleteLink(linkId, user.id);
     if (!result?.error) {
-      const updatedLinks = links.filter(link => link.id !== linkId);
-      setLinks(updatedLinks);
+      onLinkDeleted(linkId);
     }
   };
 
@@ -61,23 +63,13 @@ export default function Editor({ user }: EditorProps) {
     e.preventDefault();
     if (!editingLink) return;
 
-    const result = await updateLink(
-      editingLink.id,
-      editingLink.title,
-      editingLink.url,
-      user.id
-    );
+    const result = await updateLink(editingLink.id, editingLink.title, editingLink.url, user.id);
 
     if (!result?.error) {
-      const updatedLinks = links.map(link => 
-        link.id === editingLink.id ? { ...link, ...editingLink } : link
-      );
-      setLinks(updatedLinks);
-      setEditingLink(null);
-      alert('Link updated successfully!');
+       onLinkUpdated({ ...editingLink }); 
+       setEditingLink(null);
     }
   };
-
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       <div className="text-center">
@@ -144,16 +136,16 @@ export default function Editor({ user }: EditorProps) {
             Your Links
           </h2>
           <span className="bg-gray-700 text-purple-300 text-xs font-medium px-3 py-1 rounded-full">
-            {links.length} {links.length === 1 ? 'Link' : 'Links'}
+            {user.links.length} {user.links.length === 1 ? 'Link' : 'Links'}
           </span>
         </div>
         
         {/* Links List */}
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-gray-300 mb-4">Current Links</h3>
-          {links.length > 0 ? (
+          {user.links.length > 0 ? (
             <ul className="space-y-3">
-              {links.map((link) => (
+              {user.links.map((link) => (
                 <li key={link.id} className="group bg-gray-700/50 hover:bg-gray-700/80 border border-gray-600 rounded-lg p-4 transition-all duration-200">
                   <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0">
