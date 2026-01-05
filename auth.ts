@@ -21,6 +21,22 @@ export async function getUser(email:string) {
     throw new Error('Failed to fetch user.');
   }
 }
+export async function getUserByUsername(username: string) {
+ try{
+        const user = await db.user.findUnique({where:{username},include: {
+      links: {
+        orderBy: {
+          createdAt: 'desc'
+        }
+      }
+    }})
+        return user;
+    }
+    catch (error) {
+    console.error('Failed to fetch user:', error);
+    throw new Error('Failed to fetch user.');
+  }
+}
 
 export const {handlers,auth,signIn,signOut} = NextAuth({
     ...authConfig,
