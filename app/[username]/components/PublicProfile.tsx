@@ -43,7 +43,7 @@ const PublicProfile = ({ user }: PreviewProps) => {
             {user.links.map((link) => (
               <a
                 key={link.id}
-                href={link.url}
+                href={`/api/click/${link.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 hover:border-indigo-300"
