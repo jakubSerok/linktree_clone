@@ -18,11 +18,30 @@ model User {
 }
 
 model Link{
-  id String @id @default(cuid())
-  title String
-  url String
-  userId String
-  clicks Int @default(0)
-  user User @relation(fields: [userId], references: [id])
+  id          String      @id @default(cuid())
+  title       String
+  url         String
+  userId      String
+  clicks      Int         @default(0)
+  user        User        @relation(fields: [userId], references: [id])
+  clickEvents ClickEvent[]
+  createdAt   DateTime    @default(now())
+}
+
+model ClickEvent {
+  id        String   @id @default(cuid())
+  link      Link     @relation(fields: [linkId], references: [id])
+  linkId    String
+  ipAddress String?
+  userAgent String?
+  referrer  String?
+  country   String?
+  city      String?
+  device    String?  // 'mobile', 'desktop', 'tablet'
+  os        String?  // 'windows', 'macos', 'linux', 'ios', 'android'
+  browser   String?  // 'chrome', 'firefox', 'safari', 'edge', 'opera'
   createdAt DateTime @default(now())
+
+  @@index([linkId])
+  @@index([createdAt])
 }
