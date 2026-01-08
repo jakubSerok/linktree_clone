@@ -12,7 +12,7 @@ export default async function Navbar() {
               href="/dashboard"
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              Profile
+              Dashboard
             </Link>:
             <Link 
               href="/login" 
@@ -20,12 +20,19 @@ export default async function Navbar() {
             >
               Sign In
             </Link>}
-            <Link 
+            {session?<Link 
+              href="/analytics"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Analytics
+            </Link>
+            :<Link 
               href="/register"
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               Get Started
             </Link>
+}
           </div>
         </div>
       </header>

@@ -13,6 +13,13 @@ interface PreviewProps {
 }
 
 const PublicProfile = ({ user }: PreviewProps) => {
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        User not found
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       <div 
